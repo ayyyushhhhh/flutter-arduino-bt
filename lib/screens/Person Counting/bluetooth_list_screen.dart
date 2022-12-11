@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_arduino/screens/Person%20Counting/person_counting_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_arduino/models/UUIDs.dart';
 
@@ -26,7 +27,7 @@ class _BluetoothListScreenState extends State<BluetoothListScreen> {
         appBar: AppBar(
           title: const Text('Avaiable Devices'),
         ),
-        body: MainBody(),
+        body: const MainBody(),
       ),
     );
   }
@@ -41,8 +42,6 @@ class MainBody extends StatefulWidget {
 
 class _BodyState extends State<MainBody> {
   bool _isBluetoothAvailable = false;
-  bool _isLocationAvailable = false;
-  bool _isLocationOn = false;
   List<BluetoothDeviceModel>? devices = [];
   bool isLoading = false;
 
@@ -270,9 +269,25 @@ class _BodyState extends State<MainBody> {
                                 bottomsheetForUUIDS(devices![index].uuids);
                               },
                               onTap: () async {
-                                await blueConnect.connect(
-                                  macAddress: devices![index].address!,
-                                );
+                                try {
+                                  // await blueConnect.connect(
+                                  //   macAddress: devices![index].address!,
+                                  // );
+                                  final navigator = Navigator.of(context);
+                                  BluetoothConnection connection =
+                                      await BluetoothConnection.toAddress(
+                                          devices![index].address!);
+                                  print('Connected to the device');
+
+                                  navigator.push(
+                                    MaterialPageRoute(builder: (context) {
+                                      return PersonCountingScreeen(
+                                          connection: connection);
+                                    }),
+                                  );
+                                } catch (e) {
+                                  print('Error Connected to the device');
+                                }
                               },
                               title: Text(
                                   "${devices![index].name!} (${devices![index].aliasName!})"),
