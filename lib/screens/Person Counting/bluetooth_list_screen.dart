@@ -8,6 +8,7 @@ import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 import 'package:flutter_arduino/models/UUIDs.dart';
 
 import 'package:flutter_arduino/models/bluetooth_device.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import 'package:xunil_blue_connect/utils/status.dart';
 import 'package:xunil_blue_connect/xunil_blue_connect.dart';
@@ -47,6 +48,20 @@ class _BodyState extends State<MainBody> {
 
   //call the class
   XunilBlueConnect blueConnect = XunilBlueConnect();
+
+  @override
+  void initState() {
+    super.initState();
+    _checkPermission();
+  }
+
+  _checkPermission() async {
+    await [
+      Permission.bluetoothScan,
+      Permission.bluetooth,
+      Permission.bluetoothConnect
+    ].request();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,16 +146,18 @@ class _BodyState extends State<MainBody> {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  await blueConnect.startDiscovery();
-                  setState(() {
-                    isLoading = true;
-                  });
-                  Timer(const Duration(seconds: 13), () async {
-                    await blueConnect.stopDiscovery();
+                  if (await Permission.bluetoothScan.isGranted) {
+                    await blueConnect.startDiscovery();
                     setState(() {
-                      isLoading = false;
+                      isLoading = true;
                     });
-                  });
+                    Timer(const Duration(seconds: 13), () async {
+                      await blueConnect.stopDiscovery();
+                      setState(() {
+                        isLoading = false;
+                      });
+                    });
+                  }
                 },
                 child: const Text('Start Discovery'),
               ),

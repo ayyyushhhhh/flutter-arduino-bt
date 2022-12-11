@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_arduino">
+    package="com.embed.flutterbt">
  <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!-- Needed only if your app looks for Bluetooth devices.
@@ -18,7 +18,7 @@
     <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
 
    <application
-        android:label="flutter_arduino"
+        android:label="Arduino BT"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         

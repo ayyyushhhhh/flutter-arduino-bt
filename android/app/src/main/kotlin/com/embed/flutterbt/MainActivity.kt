@@ -1,4 +1,4 @@
-package com.example.flutter_arduino
+package com.embed.flutterbt
 
 import io.flutter.embedding.android.FlutterActivity
 
