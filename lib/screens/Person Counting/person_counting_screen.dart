@@ -16,6 +16,7 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: const Text("Person Counting Screen")),
       body: StreamBuilder<Uint8List>(
         stream: widget.connection.input,
         builder: ((context, snapshot) {

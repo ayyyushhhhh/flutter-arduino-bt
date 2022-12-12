@@ -26,7 +26,7 @@ class _BluetoothListScreenState extends State<BluetoothListScreen> {
   List<BluetoothDeviceModel>? devices = [];
   bool isLoading = false;
   List<BluetoothDeviceModel>? pairedDevices = [];
-  late BluetoothConnection connection;
+  BluetoothConnection? connection;
   //call the class
   XunilBlueConnect blueConnect = XunilBlueConnect();
 
@@ -280,24 +280,43 @@ class _BluetoothListScreenState extends State<BluetoothListScreen> {
                                           final scaffoldMessenger =
                                               ScaffoldMessenger.of(context);
 
-                                          connection = await BluetoothConnection
-                                              .toAddress(
-                                                  devices![index].address!);
+                                          if (connection == null) {
+                                            connection =
+                                                await BluetoothConnection
+                                                    .toAddress(devices![index]
+                                                        .address!);
 
-                                          const snackBar = SnackBar(
-                                            content:
-                                                Text('Bluetooth Connected'),
-                                          );
-                                          scaffoldMessenger
-                                              .showSnackBar(snackBar);
+                                            const snackBar = SnackBar(
+                                              content:
+                                                  Text('Bluetooth Connected'),
+                                            );
+                                            scaffoldMessenger
+                                                .showSnackBar(snackBar);
 
-                                          navigator.pushReplacement(
-                                            MaterialPageRoute(
-                                                builder: (context) {
-                                              return PersonCountingScreeen(
-                                                  connection: connection);
-                                            }),
-                                          );
+                                            navigator.pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                                return PersonCountingScreeen(
+                                                    connection: connection!);
+                                              }),
+                                            );
+                                          }
+                                          if (connection!.isConnected) {
+                                            const snackBar = SnackBar(
+                                              content:
+                                                  Text('Bluetooth Connected'),
+                                            );
+                                            scaffoldMessenger
+                                                .showSnackBar(snackBar);
+
+                                            navigator.pushReplacement(
+                                              MaterialPageRoute(
+                                                  builder: (context) {
+                                                return PersonCountingScreeen(
+                                                    connection: connection!);
+                                              }),
+                                            );
+                                          }
                                         } catch (e) {
                                           print(
                                               'Error Connected to the device');
@@ -310,14 +329,17 @@ class _BluetoothListScreenState extends State<BluetoothListScreen> {
                                         onPressed: (() async {
                                           final scaffoldMessenger =
                                               ScaffoldMessenger.of(context);
-                                          if (connection.isConnected) {}
-                                          const snackBar = SnackBar(
-                                            content: Text(
-                                                'Bluetooth connection Done'),
-                                          );
+                                          if (connection != null &&
+                                              connection!.isConnected) {
+                                            const snackBar = SnackBar(
+                                              content: Text(
+                                                  'Bluetooth disconnected'),
+                                            );
 
-                                          scaffoldMessenger
-                                              .showSnackBar(snackBar);
+                                            scaffoldMessenger
+                                                .showSnackBar(snackBar);
+                                            connection!.finish();
+                                          }
                                         }),
                                         icon: const Icon(
                                             Icons.bluetooth_disabled),
