@@ -14,14 +14,15 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:xunil_blue_connect/utils/status.dart';
 import 'package:xunil_blue_connect/xunil_blue_connect.dart';
 
-class BluetoothListScreen extends StatefulWidget {
-  const BluetoothListScreen({super.key});
+class BluetoothDiscoveryScreen extends StatefulWidget {
+  const BluetoothDiscoveryScreen({super.key});
 
   @override
-  State<BluetoothListScreen> createState() => _BluetoothListScreenState();
+  State<BluetoothDiscoveryScreen> createState() =>
+      _BluetoothDiscoveryScreenState();
 }
 
-class _BluetoothListScreenState extends State<BluetoothListScreen> {
+class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
   bool _isBluetoothAvailable = false;
   List<BluetoothDeviceModel>? devices = [];
   bool isLoading = false;
@@ -56,7 +57,8 @@ class _BluetoothListScreenState extends State<BluetoothListScreen> {
     await [
       Permission.bluetoothScan,
       Permission.bluetooth,
-      Permission.bluetoothConnect
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
     ].request();
   }
 
