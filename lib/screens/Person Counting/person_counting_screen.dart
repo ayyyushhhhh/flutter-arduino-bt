@@ -54,47 +54,87 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Person Counting Screen"),
-        actions: [
-          IconButton(
-              onPressed: () {
-                if (widget.connection.isConnected) {
-                  widget.connection.finish();
-                  Navigator.of(context)
-                      .pushReplacement(MaterialPageRoute(builder: ((context) {
-                    return const BluetoothDiscoveryScreen();
-                  })));
-                }
-              },
-              icon: const Icon(
-                Icons.bluetooth_disabled,
-              )),
-          IconButton(
-            iconSize: 40,
-            onPressed: () async {
-              widget.connection.output
-                  .add(Uint8List.fromList(utf8.encode("Hi")));
-              await widget.connection.output.allSent;
-            },
-            icon: const Icon(Icons.add),
-          ),
-        ],
-      ),
+      backgroundColor: Colors.blueGrey,
+      // appBar: AppBar(
+      //   title: const Text("Person Counting Screen"),
+      //   actions: [
+
+      //     // IconButton(
+      //     //   iconSize: 40,
+      //     //   onPressed: () async {
+      //     //     widget.connection.output
+      //     //         .add(Uint8List.fromList(utf8.encode("Hi")));
+      //     //     await widget.connection.output.allSent;
+      //     //   },
+      //     //   icon: const Icon(Icons.add),
+      //     // ),
+      //   ],
+      // ),
       body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Align(
+                alignment: Alignment.topRight,
+                child: InkWell(
+                  onLongPress: () {
+                    if (widget.connection.isConnected) {
+                      widget.connection.finish();
+                      Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(builder: ((context) {
+                        return const BluetoothDiscoveryScreen();
+                      })));
+                    }
+                  },
+                  child: const Icon(
+                    Icons.bluetooth_disabled,
+                    size: 30,
+                  ),
+                ),
+              ),
+            ),
             StreamBuilder<String>(
               stream: _btDataStreamController.stream,
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.hasData) {
                   final val = snapshot.data as String;
-                  return Text(
-                    val,
-                    style: const TextStyle(
-                        fontSize: 40, fontWeight: FontWeight.bold),
-                  );
+                  return Container(
+                      height: MediaQuery.of(context).size.height / 2,
+                      width: MediaQuery.of(context).size.width,
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 40, horizontal: 40),
+                      margin: const EdgeInsets.symmetric(
+                          vertical: 20, horizontal: 20),
+                      decoration: const BoxDecoration(
+                        color: Colors.deepOrangeAccent,
+                        borderRadius: BorderRadius.all(Radius.circular(10)),
+                        boxShadow: [
+                          BoxShadow(color: Colors.black, blurRadius: 20),
+                        ],
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        // ignore: prefer_const_literals_to_create_immutables
+                        children: [
+                          const Text("Total Attendees Today",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w400,
+                                  color: Colors.white)),
+                          Center(
+                            child: Text(
+                              val,
+                              style: const TextStyle(
+                                  fontSize: 100,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ));
                 }
                 return const Text(
                   "0",
