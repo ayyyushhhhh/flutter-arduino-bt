@@ -1,18 +1,11 @@
-import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/screens/Person%20Counting/person_counting_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-import 'package:flutter_arduino/models/UUIDs.dart';
 
 import 'package:flutter_arduino/models/bluetooth_device.dart';
 import 'package:permission_handler/permission_handler.dart';
-
-import 'package:xunil_blue_connect/utils/status.dart';
-import 'package:xunil_blue_connect/xunil_blue_connect.dart';
 
 class BluetoothDiscoveryScreen extends StatefulWidget {
   const BluetoothDiscoveryScreen({super.key});
@@ -23,34 +16,19 @@ class BluetoothDiscoveryScreen extends StatefulWidget {
 }
 
 class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
-  bool _isBluetoothAvailable = false;
+  // bool _isBluetoothAvailable = false;
   List<BluetoothDeviceModel>? devices = [];
-  bool isLoading = false;
-  List<BluetoothDeviceModel>? pairedDevices = [];
+  bool isLoading = true;
+  final deviceslist = [];
   BluetoothConnection? connection;
+  late Stream<BluetoothDiscoveryResult> _resultStream;
+
   //call the class
-  XunilBlueConnect blueConnect = XunilBlueConnect();
 
   @override
   void initState() {
     super.initState();
     _checkPermission();
-    _startDiscovery();
-  }
-
-  Future<void> _startDiscovery() async {
-    if (await Permission.bluetoothScan.isGranted) {
-      await blueConnect.startDiscovery();
-      setState(() {
-        isLoading = true;
-      });
-      Timer(const Duration(seconds: 13), () async {
-        await blueConnect.stopDiscovery();
-        setState(() {
-          isLoading = false;
-        });
-      });
-    }
   }
 
   _checkPermission() async {
@@ -60,59 +38,30 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
       Permission.bluetoothConnect,
       Permission.bluetoothAdvertise,
     ].request();
+    final isOn = await FlutterBluetoothSerial.instance.isEnabled;
+    if (isOn == true) {
+      try {
+        _resultStream =
+            _resultStream = FlutterBluetoothSerial.instance.startDiscovery();
+      } catch (e) {
+        print(e);
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    bottomsheetForUUIDS(List<UUIDS>? uuids) {
-      return showModalBottomSheet(
-        context: context,
-        isDismissible: true,
-        backgroundColor: Colors.white,
-        builder: (data) {
-          return SizedBox(
-            height: MediaQuery.of(context).size.height * 0.6,
-            child: ListView.builder(
-              itemCount: uuids?.length,
-              shrinkWrap: true,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  visualDensity: VisualDensity.adaptivePlatformDensity,
-                  style: ListTileStyle.list,
-                  title: Text(
-                    uuids![index].name!.toString(),
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  subtitle: Text(
-                    uuids[index].shortDescription!.toString(),
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ),
-                  ),
-                  trailing: Text(
-                    uuids[index].uuid!.toString(),
-                    style: const TextStyle(
-                      fontSize: 12.0,
-                    ),
-                  ),
-                );
-              },
-            ),
-          );
-        },
-      );
-    }
-
     return SafeArea(
       child: Scaffold(
           appBar: AppBar(
             title: const Text('Connect a device'),
             actions: [
               IconButton(
-                  onPressed: _startDiscovery, icon: const Icon(Icons.refresh))
+                onPressed: () async {
+                  setState(() {});
+                },
+                icon: const Icon(Icons.refresh),
+              )
             ],
           ),
           body: SizedBox(
@@ -131,59 +80,51 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                   child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      // ignore: prefer_const_literals_to_create_immutables
                       children: [
                         const Text(
                           "Bluetooth",
                           style: TextStyle(
                               fontWeight: FontWeight.w700, fontSize: 16),
                         ),
-                        FutureBuilder<bool>(
-                            future: blueConnect.isBluetoothAvailable(),
-                            builder: ((context, snapshot) {
-                              if (snapshot.hasData) {
-                                final isBTOn = snapshot.data as bool;
-                                return CupertinoSwitch(
-                                    value: isBTOn,
-                                    onChanged: ((value) async {
-                                      if (value == true) {
-                                        await FlutterBluetoothSerial.instance
-                                            .requestEnable();
-                                      } else {
-                                        await FlutterBluetoothSerial.instance
-                                            .requestDisable();
-                                      }
-                                      setState(() {});
-                                    }));
-                              }
-                              return const SizedBox();
-                            })),
-                      ]),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap: () async {
-                        var devices = await blueConnect.getPairedDevices();
+                        StatefulBuilder(
+                          builder: (BuildContext context,
+                              void Function(void Function()) setState) {
+                            return FutureBuilder<bool?>(
+                                future:
+                                    FlutterBluetoothSerial.instance.isEnabled,
+                                builder: ((context, snapshot) {
+                                  if (snapshot.hasData) {
+                                    final isBTOn = snapshot.data as bool;
+                                    return CupertinoSwitch(
+                                        value: isBTOn,
+                                        onChanged: ((value) async {
+                                          if (value == true) {
+                                            try {
+                                              await FlutterBluetoothSerial
+                                                  .instance
+                                                  .requestEnable();
 
-                        print(devices);
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: Colors.black),
-                          color: Colors.white60,
+                                              _resultStream =
+                                                  FlutterBluetoothSerial
+                                                      .instance
+                                                      .startDiscovery();
+                                            } catch (e) {
+                                              print(e);
+                                            }
+                                          } else {
+                                            await FlutterBluetoothSerial
+                                                .instance
+                                                .requestDisable();
+                                          }
+                                          setState(() {});
+                                        }));
+                                  }
+                                  return const SizedBox();
+                                }));
+                          },
                         ),
-                        child: const Text(
-                          'Get paired devices',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.w800),
-                        ),
-                      ),
-                    ),
-                  ],
+                      ]),
                 ),
                 const Padding(
                   padding: EdgeInsets.all(10.0),
@@ -196,164 +137,68 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                     ),
                   ),
                 ),
-                if (isLoading)
-                  const LinearProgressIndicator(color: Colors.orangeAccent),
-                StreamBuilder(
-                  stream: blueConnect.listenStatus,
-                  builder: (context, snapshot) {
+                const LinearProgressIndicator(color: Colors.orangeAccent),
+                StreamBuilder<BluetoothDiscoveryResult>(
+                  stream: _resultStream,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                     if (snapshot.hasData) {
-                      var STATUS = jsonDecode(snapshot.data as String);
+                      final device = snapshot.data as BluetoothDiscoveryResult;
 
-                      //for status pairing
-                      switch (STATUS['STATUS_PAIRING']) {
-                        case PairedStatus.PAIRED:
-                          print(PairedStatus.PAIRED);
-                          break;
-                        case PairedStatus.PAIRING:
-                          print(PairedStatus.PAIRING);
-                          break;
-                        case PairedStatus.PAIRED_NONE:
-                          print(PairedStatus.PAIRED_NONE);
-                          break;
-                        case PairedStatus.UNKNOWN_PAIRED:
-                          print(PairedStatus.UNKNOWN_PAIRED);
-                          break;
+                      if (!deviceslist.contains(device)) {
+                        deviceslist.add(device);
                       }
+                      return Expanded(
+                        child: ListView.builder(
+                          itemCount: deviceslist.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return InkWell(
+                              onTap: () async {
+                                final navigator = Navigator.of(context);
+                                if (connection == null) {
+                                  connection =
+                                      await BluetoothConnection.toAddress(
+                                          deviceslist[index].device.address);
 
-                      //for status connecting
-                      switch (STATUS['STATUS_CONNECTING']) {
-                        case ConnectingStatus.STATE_CONNECTED:
-                          print(STATUS['MAC_ADDRESS']);
-                          print(ConnectingStatus.STATE_CONNECTED);
-                          break;
-                        case ConnectingStatus.STATE_DISCONNECTED:
-                          print(STATUS['MAC_ADDRESS']);
-                          print(ConnectingStatus.STATE_DISCONNECTED);
-                          break;
-                      }
-
-                      //for status discovery
-                      switch (STATUS['STATUS_DISCOVERY']) {
-                        case DiscoveryStatus.STARTED:
-                          print(DiscoveryStatus.STARTED);
-                          break;
-                        case DiscoveryStatus.FINISHED:
-                          print(DiscoveryStatus.FINISHED);
-                          break;
-                      }
-                    }
-                    return const SizedBox();
-                  },
-                ),
-                StreamBuilder(
-                  stream: blueConnect.listenDeviceResults,
-                  builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      var device = BluetoothDeviceModel.fromJson(
-                          jsonDecode(snapshot.data as String));
-
-                      bool isEmpty = devices!
-                          .where(
-                            (localAddress) =>
-                                localAddress.address == device.address,
-                          )
-                          .isEmpty;
-
-                      if (isEmpty) {
-                        devices?.add(device);
-                      }
-
-                      return devices!.isNotEmpty
-                          ? Expanded(
-                              child: ListView.builder(
-                                shrinkWrap: true,
-                                itemCount: devices?.length,
-                                padding: const EdgeInsets.all(10.0),
-                                itemBuilder: (context, index) {
-                                  return ListTile(
-                                      onLongPress: () {
-                                        bottomsheetForUUIDS(
-                                            devices![index].uuids);
+                                  navigator.push(
+                                    MaterialPageRoute(
+                                      builder: (BuildContext context) {
+                                        return PersonCountingScreeen(
+                                            connection: connection!);
                                       },
-                                      onTap: () async {
-                                        try {
-                                          final navigator =
-                                              Navigator.of(context);
-                                          final scaffoldMessenger =
-                                              ScaffoldMessenger.of(context);
+                                    ),
+                                  );
+                                }
 
-                                          if (connection == null) {
-                                            connection =
-                                                await BluetoothConnection
-                                                    .toAddress(devices![index]
-                                                        .address!);
-
-                                            const snackBar = SnackBar(
-                                              content:
-                                                  Text('Bluetooth Connected'),
-                                            );
-                                            scaffoldMessenger
-                                                .showSnackBar(snackBar);
-
-                                            navigator.pushReplacement(
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                                return PersonCountingScreeen(
-                                                    connection: connection!);
-                                              }),
-                                            );
-                                          }
-                                          if (connection!.isConnected) {
-                                            const snackBar = SnackBar(
-                                              content:
-                                                  Text('Bluetooth Connected'),
-                                            );
-                                            scaffoldMessenger
-                                                .showSnackBar(snackBar);
-
-                                            navigator.pushReplacement(
-                                              MaterialPageRoute(
-                                                  builder: (context) {
-                                                return PersonCountingScreeen(
-                                                    connection: connection!);
-                                              }),
-                                            );
-                                          }
-                                        } catch (e) {
-                                          print(
-                                              'Error Connected to the device');
-                                        }
-                                      },
-                                      title: Text(
-                                          "${devices![index].name!} (${devices![index].aliasName!})"),
-                                      subtitle: Text(devices![index].address!),
-                                      trailing: IconButton(
-                                        onPressed: (() async {
-                                          final scaffoldMessenger =
-                                              ScaffoldMessenger.of(context);
-                                          if (connection != null &&
-                                              connection!.isConnected) {
-                                            const snackBar = SnackBar(
-                                              content: Text(
-                                                  'Bluetooth disconnected'),
-                                            );
-
-                                            scaffoldMessenger
-                                                .showSnackBar(snackBar);
-                                            connection!.finish();
-                                          }
-                                        }),
-                                        icon: const Icon(
-                                            Icons.bluetooth_disabled),
-                                      ));
-                                },
+                                navigator.push(
+                                  MaterialPageRoute(
+                                    builder: (BuildContext context) {
+                                      return PersonCountingScreeen(
+                                          connection: connection!);
+                                    },
+                                  ),
+                                );
+                              },
+                              child: ListTile(
+                                title: Text(
+                                    deviceslist[index].device.name.toString()),
+                                subtitle:
+                                    Text(deviceslist[index].device.address),
+                                trailing: IconButton(
+                                  icon: const Icon(Icons.bluetooth_disabled),
+                                  onPressed: () {
+                                    if (connection != null &&
+                                        connection!.isConnected) {
+                                      connection!.finish();
+                                    }
+                                  },
+                                ),
                               ),
-                            )
-                          : const SizedBox(
-                              child: Text("No Device available"),
                             );
+                          },
+                        ),
+                      );
                     }
-
                     return const SizedBox();
                   },
                 ),

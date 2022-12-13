@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
@@ -16,30 +17,38 @@ class PersonCountingScreeen extends StatefulWidget {
 
 class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
   BluetoothConnection? _connection;
-  final _data = [];
+
+  final StreamController<String> _btDataStreamController = StreamController();
 
   @override
   void initState() {
     super.initState();
     try {
-      // _connection = widget.connection;
-      // _connection!.input!.listen(_onDataReceived).onDone(() {
-      //   print('Disconnecting locally!');
+      _connection = widget.connection;
+      _connection!.input!.listen(_onDataReceived).onDone(() {
+        print('Disconnecting locally!');
 
-      //   if (mounted) {
-      //     setState(() {});
-      //   }
-      // });
-    } catch (e) {}
+        if (mounted) {
+          setState(() {});
+        }
+      });
+    } catch (e) {
+      debugPrint("Error Connecting");
+    }
   }
 
   void _onDataReceived(Uint8List data) {
-    print('Data incoming: ${ascii.decode(data)}');
+    // print('Data incoming: ${ascii.decode(data)}');
+
+    final value = ascii.decode(data);
+
+    _btDataStreamController.sink.add(value);
   }
 
   @override
   void dispose() {
     super.dispose();
+    _btDataStreamController.close();
   }
 
   @override
@@ -60,11 +69,7 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
               },
               icon: const Icon(
                 Icons.bluetooth_disabled,
-              ))
-        ],
-      ),
-      body: Column(
-        children: [
+              )),
           IconButton(
             iconSize: 40,
             onPressed: () async {
@@ -74,22 +79,30 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
             },
             icon: const Icon(Icons.add),
           ),
-          const SizedBox(
-            height: 10,
-          ),
-          // StreamBuilder<Uint8List>(
-          //   builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-          //     if (snapshot.hasData) {
-          //       final data = snapshot.data as Uint8List;
-
-          //       return Text(ascii.decode(data));
-          //     }
-          //     return Text("No data");
-          //   },
-          // )
-          // ],
         ],
       ),
+      body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            StreamBuilder<String>(
+              stream: _btDataStreamController.stream,
+              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
+                if (snapshot.hasData) {
+                  final val = snapshot.data as String;
+                  return Text(
+                    val,
+                    style: const TextStyle(
+                        fontSize: 40, fontWeight: FontWeight.bold),
+                  );
+                }
+                return const Text(
+                  "0",
+                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                );
+              },
+            ),
+          ]),
     );
   }
 }
