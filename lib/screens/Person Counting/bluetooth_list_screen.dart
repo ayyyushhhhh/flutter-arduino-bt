@@ -28,25 +28,21 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
   @override
   void initState() {
     super.initState();
+    _resultStream = FlutterBluetoothSerial.instance.startDiscovery();
     _checkPermission();
   }
 
   _checkPermission() async {
-    await [
-      Permission.bluetoothScan,
-      Permission.bluetooth,
-      Permission.bluetoothConnect,
-      Permission.bluetoothAdvertise,
-    ].request();
-    final isOn = await FlutterBluetoothSerial.instance.isEnabled;
-    if (isOn == true) {
-      try {
-        _resultStream =
-            _resultStream = FlutterBluetoothSerial.instance.startDiscovery();
-      } catch (e) {
-        print(e);
-      }
-    }
+    await Permission.bluetooth.request();
+    await Permission.bluetoothScan.request();
+    await Permission.bluetoothConnect.request();
+    await Permission.bluetoothAdvertise.request();
+    // await [
+    //   Permission.bluetoothScan,
+    //   Permission.bluetooth,
+    //   Permission.bluetoothConnect,
+    //   Permission.bluetoothAdvertise,
+    // ].request();
   }
 
   @override
@@ -110,7 +106,7 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                                                       .instance
                                                       .startDiscovery();
                                             } catch (e) {
-                                              print(e);
+                                              debugPrint(e.toString());
                                             }
                                           } else {
                                             await FlutterBluetoothSerial
@@ -155,11 +151,11 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                             return InkWell(
                               onTap: () async {
                                 final navigator = Navigator.of(context);
-                                if (connection == null) {
-                                  connection =
-                                      await BluetoothConnection.toAddress(
-                                          deviceslist[index].device.address);
-
+                                // if (connection == null) {
+                                BluetoothConnection.toAddress(
+                                        deviceslist[index].device.address)
+                                    .then((btconnection) {
+                                  connection = btconnection;
                                   navigator.push(
                                     MaterialPageRoute(
                                       builder: (BuildContext context) {
@@ -168,16 +164,19 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                                       },
                                     ),
                                   );
-                                }
+                                }).catchError((error) {
+                                  debugPrint(error);
+                                });
+                                // }
 
-                                navigator.push(
-                                  MaterialPageRoute(
-                                    builder: (BuildContext context) {
-                                      return PersonCountingScreeen(
-                                          connection: connection!);
-                                    },
-                                  ),
-                                );
+                                // navigator.push(
+                                //   MaterialPageRoute(
+                                //     builder: (BuildContext context) {
+                                //       return PersonCountingScreeen(
+                                //           connection: connection!);
+                                //     },
+                                //   ),
+                                // );
                               },
                               child: ListTile(
                                 title: Text(

@@ -1,8 +1,8 @@
-import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
 import 'package:flutter_arduino/screens/Person%20Counting/bluetooth_list_screen.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
@@ -18,22 +18,19 @@ class PersonCountingScreeen extends StatefulWidget {
 class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
   BluetoothConnection? _connection;
 
-  final StreamController<String> _btDataStreamController = StreamController();
-
+  final BluetoothBloc _btValBloc = BluetoothBloc();
   @override
   void initState() {
     super.initState();
+
     try {
       _connection = widget.connection;
       _connection!.input!.listen(_onDataReceived).onDone(() {
-        print('Disconnecting locally!');
-
-        if (mounted) {
-          setState(() {});
-        }
+        debugPrint('Disconnecting locally!');
       });
     } catch (e) {
       debugPrint("Error Connecting");
+      debugPrint(e.toString());
     }
   }
 
@@ -41,14 +38,13 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
     // print('Data incoming: ${ascii.decode(data)}');
 
     final value = ascii.decode(data);
-
-    _btDataStreamController.sink.add(value);
+    _btValBloc.updateValue(value);
   }
 
   @override
   void dispose() {
     super.dispose();
-    _btDataStreamController.close();
+    _btValBloc.dispose();
   }
 
   @override
@@ -95,52 +91,54 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
                 ),
               ),
             ),
-            StreamBuilder<String>(
-              stream: _btDataStreamController.stream,
-              builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
-                if (snapshot.hasData) {
-                  final val = snapshot.data as String;
-                  return Container(
-                      height: MediaQuery.of(context).size.height / 2,
-                      width: MediaQuery.of(context).size.width,
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 40, horizontal: 40),
-                      margin: const EdgeInsets.symmetric(
-                          vertical: 20, horizontal: 20),
-                      decoration: const BoxDecoration(
-                        color: Colors.deepOrangeAccent,
-                        borderRadius: BorderRadius.all(Radius.circular(10)),
-                        boxShadow: [
-                          BoxShadow(color: Colors.black, blurRadius: 20),
-                        ],
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        // ignore: prefer_const_literals_to_create_immutables
-                        children: [
-                          const Text("Total Attendees Today",
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w400,
-                                  color: Colors.white)),
-                          Center(
-                            child: Text(
-                              val,
-                              style: const TextStyle(
-                                  fontSize: 100,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ));
-                }
-                return const Text(
-                  "0",
-                  style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
-                );
-              },
+            Container(
+              height: MediaQuery.of(context).size.height / 2,
+              width: MediaQuery.of(context).size.width,
+              padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 40),
+              margin: const EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+              decoration: const BoxDecoration(
+                color: Colors.deepOrangeAccent,
+                borderRadius: BorderRadius.all(Radius.circular(10)),
+                boxShadow: [
+                  BoxShadow(color: Colors.black, blurRadius: 20),
+                ],
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                // ignore: prefer_const_literals_to_create_immutables
+                children: [
+                  const Text("Total Attendees Today",
+                      style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.white)),
+                  Center(
+                    child: StreamBuilder<String>(
+                      stream: _btValBloc.btStream,
+                      builder: ((context, snapshot) {
+                        if (snapshot.hasData) {
+                          final value = snapshot.data;
+                          return Text(
+                            value.toString(),
+                            style: const TextStyle(
+                                fontSize: 100,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          );
+                        }
+                        return const Text(
+                          "0",
+                          style: TextStyle(
+                              fontSize: 100,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
+                        );
+                      }),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ]),
     );
