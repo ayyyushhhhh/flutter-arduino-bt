@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
 import 'package:flutter_arduino/screens/select_project_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 

@@ -7,15 +7,15 @@ import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
-class PersonCountingScreeen extends StatefulWidget {
+class VisitorCounterScreen extends StatefulWidget {
   final BluetoothConnection connection;
-  const PersonCountingScreeen({super.key, required this.connection});
+  const VisitorCounterScreen({super.key, required this.connection});
 
   @override
-  State<PersonCountingScreeen> createState() => _PersonCountingScreeenState();
+  State<VisitorCounterScreen> createState() => _VisitorCounterScreenState();
 }
 
-class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
+class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
   BluetoothConnection? _connection;
 
   final BluetoothBloc _btValBloc = BluetoothBloc();

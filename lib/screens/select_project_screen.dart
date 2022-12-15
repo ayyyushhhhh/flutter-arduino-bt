@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
 import 'package:flutter_arduino/screens/projects/door_lock_bt.dart';
+import 'package:flutter_arduino/screens/projects/temp_monitor_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class SelectProjectScreen extends StatelessWidget {
@@ -20,7 +21,7 @@ class SelectProjectScreen extends StatelessWidget {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (BuildContext context) {
-                    return PersonCountingScreeen(connection: connection);
+                    return VisitorCounterScreen(connection: connection);
                   },
                 ),
               );
@@ -46,7 +47,7 @@ class SelectProjectScreen extends StatelessWidget {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (BuildContext context) {
-                    return Doorlock(connection: connection);
+                    return TemperatureMonitor(connection: connection);
                   },
                 ),
               );

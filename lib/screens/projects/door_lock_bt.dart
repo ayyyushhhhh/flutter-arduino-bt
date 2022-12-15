@@ -44,6 +44,12 @@ class _DoorlockState extends State<Doorlock> {
     }
   }
 
+  @override
+  void dispose() {
+    super.dispose();
+    _btValBloc.dispose();
+  }
+
   void _onDataReceived(Uint8List data) {
     // print('Data incoming: ${ascii.decode(data)}');
 
