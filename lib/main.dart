@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_arduino/screens/Person%20Counting/bluetooth_list_screen.dart';
+import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
+import 'package:flutter_arduino/screens/projects/door_lock_bt.dart';
 
 void main() {
   runApp(const MyApp());

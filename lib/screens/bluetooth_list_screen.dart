@@ -1,7 +1,8 @@
 import 'package:flutter/cupertino.dart';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_arduino/screens/Person%20Counting/person_counting_screen.dart';
+import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
+import 'package:flutter_arduino/screens/select_project_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import 'package:flutter_arduino/models/bluetooth_device.dart';
@@ -33,16 +34,12 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
   }
 
   _checkPermission() async {
-    await Permission.bluetooth.request();
-    await Permission.bluetoothScan.request();
-    await Permission.bluetoothConnect.request();
-    await Permission.bluetoothAdvertise.request();
-    // await [
-    //   Permission.bluetoothScan,
-    //   Permission.bluetooth,
-    //   Permission.bluetoothConnect,
-    //   Permission.bluetoothAdvertise,
-    // ].request();
+    await [
+      Permission.bluetoothScan,
+      Permission.bluetooth,
+      Permission.bluetoothConnect,
+      Permission.bluetoothAdvertise,
+    ].request();
   }
 
   @override
@@ -159,7 +156,7 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                                   navigator.push(
                                     MaterialPageRoute(
                                       builder: (BuildContext context) {
-                                        return PersonCountingScreeen(
+                                        return SelectProjectScreen(
                                             connection: connection!);
                                       },
                                     ),

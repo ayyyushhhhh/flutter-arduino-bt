@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
-import 'package:flutter_arduino/screens/Person%20Counting/bluetooth_list_screen.dart';
+import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -38,6 +38,7 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
     // print('Data incoming: ${ascii.decode(data)}');
 
     final value = ascii.decode(data);
+
     _btValBloc.updateValue(value);
   }
 
@@ -51,21 +52,6 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.blueGrey,
-      // appBar: AppBar(
-      //   title: const Text("Person Counting Screen"),
-      //   actions: [
-
-      //     // IconButton(
-      //     //   iconSize: 40,
-      //     //   onPressed: () async {
-      //     //     widget.connection.output
-      //     //         .add(Uint8List.fromList(utf8.encode("Hi")));
-      //     //     await widget.connection.output.allSent;
-      //     //   },
-      //     //   icon: const Icon(Icons.add),
-      //     // ),
-      //   ],
-      // ),
       body: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -118,7 +104,8 @@ class _PersonCountingScreeenState extends State<PersonCountingScreeen> {
                       stream: _btValBloc.btStream,
                       builder: ((context, snapshot) {
                         if (snapshot.hasData) {
-                          final value = snapshot.data;
+                          final value = snapshot.data as String;
+
                           return Text(
                             value.toString(),
                             style: const TextStyle(
