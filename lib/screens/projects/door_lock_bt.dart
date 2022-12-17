@@ -197,6 +197,27 @@ class _DoorlockState extends State<Doorlock> {
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Align(
+              alignment: Alignment.topRight,
+              child: InkWell(
+                onLongPress: () {
+                  if (widget.connection.isConnected) {
+                    widget.connection.finish();
+                    Navigator.of(context)
+                        .pushReplacement(MaterialPageRoute(builder: ((context) {
+                      return const BluetoothDiscoveryScreen();
+                    })));
+                  }
+                },
+                child: const Icon(
+                  Icons.bluetooth_disabled,
+                  size: 30,
+                ),
+              ),
+            ),
+          ),
           Container(
             height: screenHeight / 3,
             width: screenWidth,

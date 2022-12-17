@@ -61,6 +61,28 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
               clipBehavior: Clip.antiAlias,
               children: [
                 Positioned(
+                  top: 10,
+                  right: 10,
+                  child: InkWell(
+                    onLongPress: () {
+                      if (widget.connection.isConnected) {
+                        widget.connection.finish();
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: ((context) {
+                              return const BluetoothDiscoveryScreen();
+                            }),
+                          ),
+                        );
+                      }
+                    },
+                    child: const Icon(
+                      Icons.bluetooth_disabled,
+                      size: 30,
+                    ),
+                  ),
+                ),
+                Positioned(
                   right: -350,
                   bottom: 150,
                   child: Transform.rotate(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_arduino/screens/projects/home_automation.dart';
 import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
 import 'package:flutter_arduino/screens/projects/door_lock_bt.dart';
 import 'package:flutter_arduino/screens/projects/temp_monitor_screen.dart';
@@ -54,6 +55,19 @@ class SelectProjectScreen extends StatelessWidget {
             },
             title: const Text("Temperature Monitor"),
             leading: const Icon(Icons.thermostat_auto),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return HomeAutomationScreen(connection: connection);
+                  },
+                ),
+              );
+            },
+            title: const Text("Home Automation"),
+            leading: const Icon(Icons.home),
           ),
         ],
       ),
