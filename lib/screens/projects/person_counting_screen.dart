@@ -27,6 +27,10 @@ class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
       _connection = widget.connection;
       _connection!.input!.listen(_onDataReceived).onDone(() {
         debugPrint('Disconnecting locally!');
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        })));
       });
     } catch (e) {
       debugPrint("Error Connecting");

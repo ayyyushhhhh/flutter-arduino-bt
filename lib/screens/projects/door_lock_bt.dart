@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
+import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 import 'package:flutter_arduino/widgets/concentric_container.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -36,7 +37,10 @@ class _DoorlockState extends State<Doorlock> {
     _connection = widget.connection;
     try {
       _connection!.input!.listen(_onDataReceived).onDone(() {
-        debugPrint('Disconnecting locally!');
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        })));
       });
     } catch (e) {
       debugPrint("Error Connecting");
@@ -217,9 +221,14 @@ class _DoorlockState extends State<Doorlock> {
                       } else if (data == "0") {
                         return Center(
                           child: Center(
-                            child: Image.asset(
-                              "assets/images/open-lock.png",
-                              height: screenHeight / 7,
+                            child: InkWell(
+                              onTap: () {
+                                _showPasswordDialog(context);
+                              },
+                              child: Image.asset(
+                                "assets/images/open-lock.png",
+                                height: screenHeight / 7,
+                              ),
                             ),
                           ),
                         );

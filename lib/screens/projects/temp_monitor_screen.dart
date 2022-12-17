@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
+import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 import 'package:flutter_arduino/widgets/temperature_circle.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -24,6 +25,10 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
     try {
       _connection!.input!.listen(_onDataReceived).onDone(() {
         debugPrint('Disconnecting locally!');
+        Navigator.of(context)
+            .pushReplacement(MaterialPageRoute(builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        })));
       });
     } catch (e) {
       debugPrint("Error Connecting");
@@ -89,8 +94,20 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 20,
+                    Align(
+                      alignment: Alignment.bottomLeft,
+                      child: IconButton(
+                        icon: const Icon(Icons.bluetooth_disabled),
+                        onPressed: () {
+                          if (widget.connection.isConnected) {
+                            widget.connection.finish();
+                            Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(builder: ((context) {
+                              return const BluetoothDiscoveryScreen();
+                            })));
+                          }
+                        },
+                      ),
                     ),
                     Container(
                       height: screenHeight / 3,
