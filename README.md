@@ -1,17 +1,11 @@
-# flutter_arduino
+# Flutter Arduino BT
 
-A new Flutter project.
+A powerful companion for the Arduino BT - simply control and monitor your sensors on dashboard with a few screen taps. 
 
-## Getting Started
+Flutter Arduino BT can be very useful in a variety of use cases where you need to monitor or control regardless of the time or place:
+- In the field: you can read the temperature data from your temperature sensors. 
+- In the factory: you can monitor the crowd with not of visitors. 
+- In the home: simply monitor your home automation systems.
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-# flutter-arduino-bt
