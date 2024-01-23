@@ -5,15 +5,17 @@
 
   <!-- Request legacy Bluetooth permissions on older devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH"
-                     android:maxSdkVersion="30" />
+                />
+                <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"
-                     android:maxSdkVersion="30" />
+                 />
+    <uses-permission android:name="android.permission.SEND_SMS"/>
 
     <!-- Needed only if your app looks for Bluetooth devices.
          If your app doesn't use Bluetooth scan results to derive physical
          location information, you can strongly assert that your app
          doesn't derive physical location. -->
-    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" android:usesPermissionFlags="neverForLocation" />
+    <uses-permission android:name="android.permission.BLUETOOTH_SCAN" />
 
     <!-- Needed only if your app makes the device discoverable to Bluetooth
          devices. -->
@@ -23,8 +25,8 @@
          devices. -->
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
         <!--bibo01 : hardware option-->
- <uses-feature android:name="android.hardware.bluetooth" android:required="true"/>
-    <uses-feature android:name="android.hardware.bluetooth_le" android:required="true"/>
+ <uses-feature android:name="android.hardware.bluetooth" android:required="false"/>
+    <uses-feature android:name="android.hardware.bluetooth_le" android:required="false"/>
 
    <application
         android:label="Arduino BT"

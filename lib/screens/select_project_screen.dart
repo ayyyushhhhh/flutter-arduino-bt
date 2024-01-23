@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/screens/projects/home_automation.dart';
+import 'package:flutter_arduino/screens/projects/morse_code_encoder_screen.dart';
 import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
 import 'package:flutter_arduino/screens/projects/door_lock_bt.dart';
 import 'package:flutter_arduino/screens/projects/temp_monitor_screen.dart';
@@ -68,6 +69,45 @@ class SelectProjectScreen extends StatelessWidget {
             },
             title: const Text("Home Automation"),
             leading: const Icon(Icons.home),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return MorseCodeEncoderScreen(connection: connection);
+                  },
+                ),
+              );
+            },
+            title: const Text("Morse Encoder"),
+            leading: const Icon(Icons.message),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return MorseCodeEncoderScreen(connection: connection);
+                  },
+                ),
+              );
+            },
+            title: const Text("Speedometer"),
+            leading: const Icon(Icons.speed),
+          ),
+          ListTile(
+            onTap: () {
+              Navigator.of(context).pushReplacement(
+                MaterialPageRoute(
+                  builder: (BuildContext context) {
+                    return MorseCodeEncoderScreen(connection: connection);
+                  },
+                ),
+              );
+            },
+            title: const Text("Android Bot"),
+            leading: const Icon(Icons.car_repair),
           ),
         ],
       ),

@@ -96,20 +96,20 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Column(
+                    const Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       // ignore: prefer_const_literals_to_create_immutables
                       children: [
-                        const Text(
+                        Text(
                           "Living Room",
                           style: TextStyle(
                               fontSize: 16, fontWeight: FontWeight.w200),
                         ),
-                        const SizedBox(
+                        SizedBox(
                           height: 5,
                         ),
-                        const Text(
+                        Text(
                           "Thermostat",
                           style: TextStyle(
                               fontSize: 24, fontWeight: FontWeight.bold),

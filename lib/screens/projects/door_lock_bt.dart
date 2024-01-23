@@ -280,18 +280,18 @@ class _DoorlockState extends State<Doorlock> {
               if (snapshot.hasData) {
                 final value = snapshot.data as String;
                 if (value == "1") {
-                  return Column(
+                  return const Column(
                     // ignore: prefer_const_literals_to_create_immutables
                     children: [
-                      const Text(
+                      Text(
                         "Door is Unlocked",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(
+                      SizedBox(
                         height: 10,
                       ),
-                      const Text(
+                      Text(
                         "Welcome!",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w200),
@@ -299,18 +299,18 @@ class _DoorlockState extends State<Doorlock> {
                     ],
                   );
                 } else if (value == "0") {
-                  return Column(
+                  return const Column(
                     // ignore: prefer_const_literals_to_create_immutables
                     children: [
-                      const Text(
+                      Text(
                         "Door is Locked",
                         style: TextStyle(
                             fontSize: 24, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(
+                      SizedBox(
                         height: 10,
                       ),
-                      const Text(
+                      Text(
                         "Tap to Unlock",
                         style: TextStyle(
                             fontSize: 16, fontWeight: FontWeight.w200),
@@ -319,17 +319,17 @@ class _DoorlockState extends State<Doorlock> {
                   );
                 }
               }
-              return Column(
+              return const Column(
                 // ignore: prefer_const_literals_to_create_immutables
                 children: [
-                  const Text(
+                  Text(
                     "Door is Locked",
                     style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  const SizedBox(
+                  SizedBox(
                     height: 10,
                   ),
-                  const Text(
+                  Text(
                     "Tap to Unlock",
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.w200),
                   ),
