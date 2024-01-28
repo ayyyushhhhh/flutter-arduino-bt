@@ -28,8 +28,8 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
   @override
   void initState() {
     super.initState();
-    _resultStream = FlutterBluetoothSerial.instance.startDiscovery();
     _checkPermission();
+    _resultStream = FlutterBluetoothSerial.instance.startDiscovery();
   }
 
   _checkPermission() async {

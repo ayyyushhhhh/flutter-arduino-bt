@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
-import 'package:flutter_arduino/screens/projects/android_bot_screen.dart';
-import 'package:flutter_arduino/screens/projects/speedo_meter_screen.dart';
-import 'package:flutter_arduino/screens/projects/tilt_bot_screen.dart';
 
 void main() {
   runApp(const MyApp());
 }
 
 class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+  const MyApp({super.key});
 
   @override
   State<MyApp> createState() => _MyAppState();

@@ -3,6 +3,7 @@ import 'package:flutter_arduino/screens/projects/home_automation.dart';
 import 'package:flutter_arduino/screens/projects/morse_code_encoder_screen.dart';
 import 'package:flutter_arduino/screens/projects/person_counting_screen.dart';
 import 'package:flutter_arduino/screens/projects/door_lock_bt.dart';
+import 'package:flutter_arduino/screens/projects/speedo_meter_screen.dart';
 import 'package:flutter_arduino/screens/projects/temp_monitor_screen.dart';
 import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
@@ -88,7 +89,7 @@ class SelectProjectScreen extends StatelessWidget {
               Navigator.of(context).pushReplacement(
                 MaterialPageRoute(
                   builder: (BuildContext context) {
-                    return MorseCodeEncoderScreen(connection: connection);
+                    return SpeedoMeterScreen(connection: connection);
                   },
                 ),
               );

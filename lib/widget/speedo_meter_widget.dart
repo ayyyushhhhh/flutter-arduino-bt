@@ -6,12 +6,12 @@ import 'package:syncfusion_flutter_gauges/gauges.dart';
 /// Also shows highest speed so far since app was opened
 class Speedometer extends StatelessWidget {
   const Speedometer({
-    Key? key,
+    super.key,
     required this.gaugeBegin,
     required this.gaugeEnd,
     required this.velocity,
     required this.velocityUnit,
-  }) : super(key: key);
+  });
 
   final double gaugeBegin;
   final double gaugeEnd;
