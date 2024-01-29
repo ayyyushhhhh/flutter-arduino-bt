@@ -1,35 +1,36 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
+// import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
 import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 import 'package:flutter_arduino/widget/speedo_meter_widget.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class SpeedoMeterScreen extends StatefulWidget {
   const SpeedoMeterScreen({super.key, required this.connection});
-  final BluetoothConnection connection;
+  final BluetoothClassic connection;
 
   @override
   State<SpeedoMeterScreen> createState() => _SpeedoMeterScreenState();
 }
 
 class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
-  BluetoothConnection? _connection;
+  // BluetoothClassic? _connection;
   final BluetoothBloc _btValBloc = BluetoothBloc();
   @override
   void initState() {
     super.initState();
-    _connection = widget.connection;
     try {
-      _connection!.input!.listen(_onDataReceived).onDone(() {
-        debugPrint('Disconnecting locally!');
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: ((context) {
-          return const BluetoothDiscoveryScreen();
-        })));
-      });
+      widget.connection.onDeviceDataReceived().listen((Uint8List data) {
+        _onDataReceived(data);
+      })
+        ..onData((data) async {
+          await disconnect();
+        })
+        ..onError((e) async {
+          await disconnect();
+        });
     } catch (e) {
       debugPrint("Error Connecting");
       debugPrint(e.toString());
@@ -43,8 +44,18 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
   }
 
   void _onDataReceived(Uint8List data) {
-    final value = ascii.decode(data);
+    String value = String.fromCharCodes(data);
     _btValBloc.updateValue(value);
+  }
+
+  Future disconnect() async {
+    final navigator = Navigator.of(context);
+
+    await widget.connection.disconnect();
+
+    navigator.pushReplacement(MaterialPageRoute(builder: ((context) {
+      return const BluetoothDiscoveryScreen();
+    })));
   }
 
   @override
@@ -65,17 +76,8 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
                   size: 40,
                 ),
                 color: Colors.white,
-                onPressed: () {
-                  if (widget.connection.isConnected) {
-                    widget.connection.finish();
-                    Navigator.of(context).pushReplacement(
-                      MaterialPageRoute(
-                        builder: ((context) {
-                          return const BluetoothDiscoveryScreen();
-                        }),
-                      ),
-                    );
-                  }
+                onPressed: () async {
+                  await disconnect();
                 },
               ),
             ),
@@ -84,16 +86,19 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.hasData) {
                   final value = snapshot.data as String;
+
                   return Speedometer(
                     gaugeBegin: 0,
-                    gaugeEnd: 50,
-                    velocity: double.parse(value),
+                    gaugeEnd: 100,
+                    velocity: double.parse(
+                      value,
+                    ),
                     velocityUnit: "m/s",
                   );
                 }
                 return const Speedometer(
                   gaugeBegin: 0,
-                  gaugeEnd: 50,
+                  gaugeEnd: 100,
                   velocity: 0,
                   velocityUnit: "m/s",
                 );

@@ -1,39 +1,31 @@
-import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
 import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 import 'package:flutter_arduino/widgets/temperature_circle.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class TemperatureMonitor extends StatefulWidget {
   const TemperatureMonitor({super.key, required this.connection});
-  final BluetoothConnection connection;
+  final BluetoothClassic connection;
 
   @override
   State<TemperatureMonitor> createState() => _TemperatureMonitorState();
 }
 
 class _TemperatureMonitorState extends State<TemperatureMonitor> {
-  BluetoothConnection? _connection;
+  BluetoothClassic? _connection;
   final BluetoothBloc _btValBloc = BluetoothBloc();
   @override
   void initState() {
     super.initState();
     _connection = widget.connection;
-    try {
-      _connection!.input!.listen(_onDataReceived).onDone(() {
-        debugPrint('Disconnecting locally!');
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: ((context) {
-          return const BluetoothDiscoveryScreen();
-        })));
-      });
-    } catch (e) {
-      debugPrint("Error Connecting");
-      debugPrint(e.toString());
-    }
+    _connection!.onDeviceDataReceived().listen((data) {
+      _onDataReceived(data);
+    }).onError((error) {
+      print("Error: ${error.toString()}");
+    });
   }
 
   @override
@@ -43,7 +35,7 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
   }
 
   void _onDataReceived(Uint8List data) {
-    final value = ascii.decode(data);
+    String value = String.fromCharCodes(data);
     _btValBloc.updateValue(value);
   }
 
@@ -60,28 +52,6 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
             child: Stack(
               clipBehavior: Clip.antiAlias,
               children: [
-                Positioned(
-                  top: 10,
-                  right: 10,
-                  child: InkWell(
-                    onLongPress: () {
-                      if (widget.connection.isConnected) {
-                        widget.connection.finish();
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: ((context) {
-                              return const BluetoothDiscoveryScreen();
-                            }),
-                          ),
-                        );
-                      }
-                    },
-                    child: const Icon(
-                      Icons.bluetooth_disabled,
-                      size: 30,
-                    ),
-                  ),
-                ),
                 Positioned(
                   right: -350,
                   bottom: 150,
@@ -121,8 +91,8 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
                       child: IconButton(
                         icon: const Icon(Icons.bluetooth_disabled),
                         onPressed: () {
-                          if (widget.connection.isConnected) {
-                            widget.connection.finish();
+                          if (_connection != null) {
+                            _connection!.disconnect();
                             Navigator.of(context).pushReplacement(
                                 MaterialPageRoute(builder: ((context) {
                               return const BluetoothDiscoveryScreen();

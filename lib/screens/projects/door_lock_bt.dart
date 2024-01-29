@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
 import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 import 'package:flutter_arduino/widgets/concentric_container.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 class Doorlock extends StatefulWidget {
-  final BluetoothConnection connection;
+  final BluetoothClassic connection;
   const Doorlock({super.key, required this.connection});
 
   @override
@@ -16,7 +16,7 @@ class Doorlock extends StatefulWidget {
 }
 
 class _DoorlockState extends State<Doorlock> {
-  BluetoothConnection? _connection;
+  // BluetoothClassic? _connection;
 
   final BluetoothBloc _btValBloc = BluetoothBloc();
 
@@ -27,25 +27,22 @@ class _DoorlockState extends State<Doorlock> {
   final TextEditingController _forthBox = TextEditingController();
 
   _sendPassword(String password) async {
-    _connection?.output.add(Uint8List.fromList(utf8.encode(password)));
-    await widget.connection.output.allSent;
+    await widget.connection.write(password);
   }
 
   @override
   void initState() {
     super.initState();
-    _connection = widget.connection;
-    try {
-      _connection!.input!.listen(_onDataReceived).onDone(() {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: ((context) {
-          return const BluetoothDiscoveryScreen();
-        })));
+    // _connection = widget.connection;
+    widget.connection.onDeviceDataReceived().listen((Uint8List data) {
+      _onDataReceived(data);
+    })
+      ..onData((data) async {
+        await disconnect();
+      })
+      ..onError((e) async {
+        await disconnect();
       });
-    } catch (e) {
-      debugPrint("Error Connecting");
-      debugPrint(e.toString());
-    }
   }
 
   @override
@@ -58,7 +55,6 @@ class _DoorlockState extends State<Doorlock> {
     // print('Data incoming: ${ascii.decode(data)}');
 
     final value = ascii.decode(data);
-
     _btValBloc.updateValue(value);
   }
 
@@ -101,6 +97,21 @@ class _DoorlockState extends State<Doorlock> {
           ),
         ),
       ),
+    );
+  }
+
+  Future disconnect() async {
+    final navigator = Navigator.of(context);
+
+    await widget.connection.disconnect();
+
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        }),
+      ),
+      (route) => false,
     );
   }
 
@@ -202,14 +213,8 @@ class _DoorlockState extends State<Doorlock> {
             child: Align(
               alignment: Alignment.topRight,
               child: InkWell(
-                onLongPress: () {
-                  if (widget.connection.isConnected) {
-                    widget.connection.finish();
-                    Navigator.of(context)
-                        .pushReplacement(MaterialPageRoute(builder: ((context) {
-                      return const BluetoothDiscoveryScreen();
-                    })));
-                  }
+                onLongPress: () async {
+                  await disconnect();
                 },
                 child: const Icon(
                   Icons.bluetooth_disabled,
@@ -224,13 +229,13 @@ class _DoorlockState extends State<Doorlock> {
             margin: EdgeInsets.zero,
             child: CustomPaint(
                 painter: ConcentricContainer(),
-                child: StreamBuilder(
+                child: StreamBuilder<String>(
                   stream: _btValBloc.btStream,
                   builder:
                       (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                     if (snapshot.hasData) {
-                      final data = snapshot.data as String;
-                      if (data == "1") {
+                      final value = snapshot.data as String;
+                      if (value == "1") {
                         return Center(
                           child: Center(
                             child: Image.asset(
@@ -239,7 +244,7 @@ class _DoorlockState extends State<Doorlock> {
                             ),
                           ),
                         );
-                      } else if (data == "0") {
+                      } else if (value == "0") {
                         return Center(
                           child: Center(
                             child: InkWell(

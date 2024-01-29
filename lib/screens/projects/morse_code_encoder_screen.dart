@@ -1,14 +1,14 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
 
 import '../../Bloc/bluetooth_bloc.dart';
 import '../bluetooth_list_screen.dart';
 
 class MorseCodeEncoderScreen extends StatefulWidget {
-  final BluetoothConnection connection;
+  final BluetoothClassic connection;
   const MorseCodeEncoderScreen({super.key, required this.connection});
 
   @override
@@ -16,12 +16,25 @@ class MorseCodeEncoderScreen extends StatefulWidget {
 }
 
 class _MorseCodeEncoderScreenState extends State<MorseCodeEncoderScreen> {
-  BluetoothConnection? _connection;
   final BluetoothBloc _btValBloc = BluetoothBloc();
   final TextEditingController textEditingController = TextEditingController();
-  _sendPassword(String password) async {
-    _connection?.output.add(Uint8List.fromList(utf8.encode(password)));
-    await widget.connection.output.allSent;
+  _sendData(String data) async {
+    await widget.connection.write(data);
+  }
+
+  Future disconnect() async {
+    final navigator = Navigator.of(context);
+
+    await widget.connection.disconnect();
+
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        }),
+      ),
+      (route) => false,
+    );
   }
 
   void _onDataReceived(Uint8List data) {
@@ -35,13 +48,11 @@ class _MorseCodeEncoderScreenState extends State<MorseCodeEncoderScreen> {
   @override
   void initState() {
     super.initState();
-    _connection = widget.connection;
+
+    // _connection = widget.connection;
     try {
-      _connection!.input!.listen(_onDataReceived).onDone(() {
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: ((context) {
-          return const BluetoothDiscoveryScreen();
-        })));
+      widget.connection.onDeviceDataReceived().listen((Uint8List data) {
+        _onDataReceived(data);
       });
     } catch (e) {
       debugPrint("Error Connecting");
@@ -58,6 +69,15 @@ class _MorseCodeEncoderScreenState extends State<MorseCodeEncoderScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
+            Align(
+              alignment: Alignment.bottomRight,
+              child: IconButton(
+                onPressed: () {
+                  disconnect();
+                },
+                icon: const Icon(Icons.bluetooth_disabled),
+              ),
+            ),
             const Center(
               child: Text(
                 "Text to Morse Convertor",
@@ -95,7 +115,7 @@ class _MorseCodeEncoderScreenState extends State<MorseCodeEncoderScreen> {
             ),
             GestureDetector(
               onTap: () {
-                _sendPassword(
+                _sendData(
                   textEditingController.text,
                 );
                 textEditingController.clear();

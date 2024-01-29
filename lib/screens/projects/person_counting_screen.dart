@@ -1,14 +1,11 @@
-import 'dart:convert';
-
+import 'package:bluetooth_classic/bluetooth_classic.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_arduino/Bloc/bluetooth_bloc.dart';
+
 import 'package:flutter_arduino/screens/bluetooth_list_screen.dart';
 
-import 'package:flutter_bluetooth_serial/flutter_bluetooth_serial.dart';
-
 class VisitorCounterScreen extends StatefulWidget {
-  final BluetoothConnection connection;
+  final BluetoothClassic connection;
   const VisitorCounterScreen({super.key, required this.connection});
 
   @override
@@ -16,41 +13,38 @@ class VisitorCounterScreen extends StatefulWidget {
 }
 
 class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
-  BluetoothConnection? _connection;
-
-  final BluetoothBloc _btValBloc = BluetoothBloc();
+  // final BluetoothBloc _btValBloc = BluetoothBloc();
   @override
   void initState() {
     super.initState();
 
-    try {
-      _connection = widget.connection;
-      _connection!.input!.listen(_onDataReceived).onDone(() {
-        debugPrint('Disconnecting locally!');
-        Navigator.of(context)
-            .pushReplacement(MaterialPageRoute(builder: ((context) {
-          return const BluetoothDiscoveryScreen();
-        })));
-      });
-    } catch (e) {
-      debugPrint("Error Connecting");
-      debugPrint(e.toString());
-    }
+    // widget.connection.onDeviceDataReceived().listen((data) {
+    //   _onDataReceived(data);
+    // }).onError((error) async {
+    //   await disconnect();
+    // });
   }
 
-  void _onDataReceived(Uint8List data) {
-    // print('Data incoming: ${ascii.decode(data)}');
+  Future disconnect() async {
+    final navigator = Navigator.of(context);
 
-    final value = ascii.decode(data);
+    await widget.connection.disconnect();
 
-    _btValBloc.updateValue(value);
+    navigator.pushReplacement(MaterialPageRoute(builder: ((context) {
+      return const BluetoothDiscoveryScreen();
+    })));
   }
 
-  @override
-  void dispose() {
-    super.dispose();
-    _btValBloc.dispose();
-  }
+  // @override
+  // void dispose() {
+  //   super.dispose();
+  //   _btValBloc.dispose();
+  // }
+
+  // void _onDataReceived(Uint8List data) {
+  //   String value = String.fromCharCodes(data);
+  //   _btValBloc.updateValue(value);
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -65,14 +59,8 @@ class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
               child: Align(
                 alignment: Alignment.topRight,
                 child: InkWell(
-                  onLongPress: () {
-                    if (widget.connection.isConnected) {
-                      widget.connection.finish();
-                      Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(builder: ((context) {
-                        return const BluetoothDiscoveryScreen();
-                      })));
-                    }
+                  onLongPress: () async {
+                    await disconnect();
                   },
                   child: const Icon(
                     Icons.bluetooth_disabled,
@@ -104,20 +92,20 @@ class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
                           fontWeight: FontWeight.w400,
                           color: Colors.white)),
                   Center(
-                    child: StreamBuilder<String>(
-                      stream: _btValBloc.btStream,
+                    child: StreamBuilder<Uint8List>(
+                      stream: widget.connection.onDeviceDataReceived(),
                       builder: ((context, snapshot) {
                         if (snapshot.hasData) {
-                          final value = snapshot.data as String;
-
+                          final value = snapshot.data as Uint8List;
                           return Text(
-                            value.toString(),
+                            String.fromCharCodes(value),
                             style: const TextStyle(
                                 fontSize: 100,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white),
                           );
                         }
+
                         return const Text(
                           "0",
                           style: TextStyle(

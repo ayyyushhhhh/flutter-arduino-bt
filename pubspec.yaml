@@ -34,13 +34,13 @@ dependencies:
   cupertino_icons: ^1.0.2
   flutter:
     sdk: flutter
-  flutter_bluetooth_serial: ^0.4.0
   kdgaugeview: ^1.0.5
   permission_handler: ^11.2.0
   shared_preferences: ^2.2.2
   telephony: ^0.2.0
   syncfusion_flutter_gauges: ^24.1.47
   sensors_plus: ^4.0.2
+  bluetooth_classic: ^0.0.1
 
 dev_dependencies:
   change_app_package_name: ^1.1.0

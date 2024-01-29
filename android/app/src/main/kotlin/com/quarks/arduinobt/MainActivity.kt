@@ -1,4 +1,4 @@
-package com.embed.flutterbt
+package com.quarks.arduinobt
 
 import io.flutter.embedding.android.FlutterActivity
 
