@@ -24,7 +24,7 @@ class _TemperatureMonitorState extends State<TemperatureMonitor> {
     _connection!.onDeviceDataReceived().listen((data) {
       _onDataReceived(data);
     }).onError((error) {
-      print("Error: ${error.toString()}");
+      debugPrint("Error: ${error.toString()}");
     });
   }
 

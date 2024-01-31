@@ -36,13 +36,9 @@ class _DoorlockState extends State<Doorlock> {
     // _connection = widget.connection;
     widget.connection.onDeviceDataReceived().listen((Uint8List data) {
       _onDataReceived(data);
-    })
-      ..onData((data) async {
-        await disconnect();
-      })
-      ..onError((e) async {
-        await disconnect();
-      });
+    }).onError((e) async {
+      await disconnect();
+    });
   }
 
   @override

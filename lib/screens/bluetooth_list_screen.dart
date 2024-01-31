@@ -307,13 +307,35 @@ class _BluetoothDiscoveryScreenState extends State<BluetoothDiscoveryScreen> {
                           await _bluetoothClassicPlugin
                               .connect(devices[index].address,
                                   "00001101-0000-1000-8000-00805f9b34fb")
-                              .then((value) {
-                            Navigator.of(context).push(MaterialPageRoute(
-                                builder: (BuildContext context) {
-                              return SelectProjectScreen(
-                                connection: _bluetoothClassicPlugin,
-                              );
-                            }));
+                              .onError((error, stackTrace) {
+                            showDialog(
+                              context: context,
+                              builder: (BuildContext context) {
+                                return AlertDialog(
+                                  title: const Text("Error"),
+                                  content: Text(
+                                      "Error connecting to ${devices[index].name}"),
+                                  actions: [
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: const Text("OK"),
+                                    )
+                                  ],
+                                );
+                              },
+                            );
+                            return false;
+                          }).then((value) {
+                            if (value == true) {
+                              Navigator.of(context).push(MaterialPageRoute(
+                                  builder: (BuildContext context) {
+                                return SelectProjectScreen(
+                                  connection: _bluetoothClassicPlugin,
+                                );
+                              }));
+                            }
                           });
                         },
                         title: Text(devices[index].name.toString()),

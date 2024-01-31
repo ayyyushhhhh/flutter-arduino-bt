@@ -29,10 +29,14 @@ class _VisitorCounterScreenState extends State<VisitorCounterScreen> {
     final navigator = Navigator.of(context);
 
     await widget.connection.disconnect();
-
-    navigator.pushReplacement(MaterialPageRoute(builder: ((context) {
-      return const BluetoothDiscoveryScreen();
-    })));
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        }),
+      ),
+      (route) => false,
+    );
   }
 
   // @override

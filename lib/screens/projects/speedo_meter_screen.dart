@@ -21,20 +21,22 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
   @override
   void initState() {
     super.initState();
-    try {
-      widget.connection.onDeviceDataReceived().listen((Uint8List data) {
-        _onDataReceived(data);
-      })
-        ..onData((data) async {
-          await disconnect();
-        })
-        ..onError((e) async {
-          await disconnect();
-        });
-    } catch (e) {
-      debugPrint("Error Connecting");
-      debugPrint(e.toString());
-    }
+    // try {
+    //   widget.connection.onDeviceDataReceived().listen((Uint8List data) {
+    //     _onDataReceived(data);
+    //   })
+    //     ..onData((data) async {
+    //       print(data);
+    //       // print("error");
+    //       // await disconnect();
+    //     })
+    //     ..onError((e) async {
+    //       await disconnect();
+    //     });
+    // } catch (e) {
+    //   debugPrint("Error Connecting");
+    //   debugPrint(e.toString());
+    // }
   }
 
   @override
@@ -43,19 +45,25 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
     _btValBloc.dispose();
   }
 
-  void _onDataReceived(Uint8List data) {
-    String value = String.fromCharCodes(data);
-    _btValBloc.updateValue(value);
-  }
+  // void _onDataReceived(Uint8List data) {
+  //   String value = String.fromCharCodes(data);
+
+  //   _btValBloc.updateValue(value);
+  // }
 
   Future disconnect() async {
     final navigator = Navigator.of(context);
 
     await widget.connection.disconnect();
 
-    navigator.pushReplacement(MaterialPageRoute(builder: ((context) {
-      return const BluetoothDiscoveryScreen();
-    })));
+    navigator.pushAndRemoveUntil(
+      MaterialPageRoute(
+        builder: ((context) {
+          return const BluetoothDiscoveryScreen();
+        }),
+      ),
+      (route) => false,
+    );
   }
 
   @override
@@ -81,18 +89,19 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
                 },
               ),
             ),
-            StreamBuilder<String>(
-              stream: _btValBloc.btStream,
+            StreamBuilder<Uint8List>(
+              stream: widget.connection.onDeviceDataReceived(),
               builder: (BuildContext context, AsyncSnapshot<dynamic> snapshot) {
                 if (snapshot.hasData) {
-                  final value = snapshot.data as String;
+                  final value = snapshot.data as Uint8List;
 
                   return Speedometer(
                     gaugeBegin: 0,
-                    gaugeEnd: 100,
-                    velocity: double.parse(
-                      value,
-                    ),
+                    gaugeEnd: 20,
+                    velocity: double.tryParse(
+                          String.fromCharCodes(value),
+                        ) ??
+                        0.0,
                     velocityUnit: "m/s",
                   );
                 }
