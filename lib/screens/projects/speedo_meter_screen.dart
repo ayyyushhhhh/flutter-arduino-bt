@@ -25,6 +25,7 @@ class _SpeedoMeterScreenState extends State<SpeedoMeterScreen> {
     try {
       _connection!.input!.listen(_onDataReceived).onDone(() {
         debugPrint('Disconnecting locally!');
+        // ignore: use_build_context_synchronously
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: ((context) {
           return const BluetoothDiscoveryScreen();

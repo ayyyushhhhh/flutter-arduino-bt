@@ -38,6 +38,7 @@ class _MorseCodeEncoderScreenState extends State<MorseCodeEncoderScreen> {
     _connection = widget.connection;
     try {
       _connection!.input!.listen(_onDataReceived).onDone(() {
+        // ignore: use_build_context_synchronously
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: ((context) {
           return const BluetoothDiscoveryScreen();

@@ -37,6 +37,7 @@ class _DoorlockState extends State<Doorlock> {
     _connection = widget.connection;
     try {
       _connection!.input!.listen(_onDataReceived).onDone(() {
+        // ignore: use_build_context_synchronously
         Navigator.of(context)
             .pushReplacement(MaterialPageRoute(builder: ((context) {
           return const BluetoothDiscoveryScreen();
@@ -162,10 +163,10 @@ class _DoorlockState extends State<Doorlock> {
                     },
                     style: ButtonStyle(
                       foregroundColor:
-                          MaterialStateProperty.all<Color>(Colors.white),
+                          WidgetStateProperty.all<Color>(Colors.white),
                       backgroundColor:
-                          MaterialStateProperty.all<Color>(Colors.blueAccent),
-                      shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+                          WidgetStateProperty.all<Color>(Colors.blueAccent),
+                      shape: WidgetStateProperty.all<RoundedRectangleBorder>(
                         RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
